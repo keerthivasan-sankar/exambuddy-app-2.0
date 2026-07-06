@@ -1,6 +1,11 @@
-const CACHE_NAME = 'exambuddy-cache-v2';
+const CACHE_NAME = 'exambuddy-cache-v3';
 const urlsToCache = [
-  '/manifest.json'
+  '/',
+  '/index.html',
+  '/manifest.json',
+  '/favicon.ico',
+  '/icon-192.png',
+  '/icon-512.png'
 ];
 
 self.addEventListener('install', event => {
@@ -8,7 +13,7 @@ self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
-        console.log('Opened cache v2');
+        console.log('Opened cache v3');
         return cache.addAll(urlsToCache);
       })
   );

@@ -72,9 +72,9 @@ function Dashboard({ setActiveTab }: { setActiveTab: (tab: string) => void }) {
 
   return (
     <div className="flex flex-col h-full bg-gray-50 dark:bg-gray-900 pb-24 md:pb-0">
-      <div className="bg-white dark:bg-gray-800 px-6 pt-12 md:pt-8 pb-6 shadow-sm sticky top-0 z-10 md:hidden">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">ExamBuddy</h1>
-        <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Connect, Travel, Succeed.</p>
+      <div className="bg-white dark:bg-gray-800 px-5 pt-6 pb-4 shadow-sm sticky top-0 z-10 md:hidden flex flex-col justify-center">
+        <h1 className="text-xl font-bold text-gray-900 dark:text-white tracking-tight">ExamBuddy</h1>
+        <p className="text-gray-500 dark:text-gray-400 text-xs mt-0.5">Connect, Travel, Succeed.</p>
       </div>
       <div className="hidden md:block bg-white dark:bg-gray-800 px-8 pt-8 pb-6 shadow-sm sticky top-0 z-10">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">Home Dashboard</h1>
