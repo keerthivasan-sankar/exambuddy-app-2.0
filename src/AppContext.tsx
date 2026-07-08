@@ -1,7 +1,7 @@
 import React, { createContext, useState, useEffect } from 'react';
 import { User, Exam } from './types';
 import { db, auth } from './lib/firebase';
-import { onAuthStateChanged, signInWithRedirect, GoogleAuthProvider, signOut, getRedirectResult } from 'firebase/auth';
+import { onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut, getRedirectResult } from 'firebase/auth';
 import { doc, getDoc, setDoc, onSnapshot, collection, query, where, addDoc, updateDoc } from 'firebase/firestore';
 
 interface AppContextType {
@@ -32,16 +32,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   useEffect(() => {
     let unsubscribeUser: (() => void) | undefined;
     let unsubscribeExams: (() => void) | undefined;
-
-    // Check for redirect errors
-    getRedirectResult(auth).catch((error) => {
-      console.error("Redirect login error:", error);
-      if (error.code === 'auth/unauthorized-domain') {
-        alert("Authentication failed: Your domain is not authorized. Please add it to your Firebase Console under Authentication > Settings > Authorized domains.");
-      } else {
-        alert("Authentication error: " + error.message);
-      }
-    });
 
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (unsubscribeUser) unsubscribeUser();
@@ -107,10 +97,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const login = async () => {
     try {
       const provider = new GoogleAuthProvider();
-      await signInWithRedirect(auth, provider);
+      await signInWithPopup(auth, provider);
     } catch (error: any) {
       console.error("Login failed", error);
-      alert("Login failed: " + error.message);
+      if (error.code === 'auth/unauthorized-domain') {
+        alert("Authentication failed: Your domain is not authorized. Please add it to your Firebase Console under Authentication > Settings > Authorized domains.");
+      } else {
+        alert("Login failed: " + error.message);
+      }
     }
   };
 
