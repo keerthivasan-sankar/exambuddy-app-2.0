@@ -1,7 +1,7 @@
 import React, { createContext, useState, useEffect } from 'react';
 import { User, Exam } from './types';
 import { db, auth } from './lib/firebase';
-import { onAuthStateChanged, signInAnonymously, signInWithRedirect, GoogleAuthProvider, signOut } from 'firebase/auth';
+import { onAuthStateChanged, signInWithRedirect, GoogleAuthProvider, signOut, getRedirectResult } from 'firebase/auth';
 import { doc, getDoc, setDoc, onSnapshot, collection, query, where, addDoc, updateDoc } from 'firebase/firestore';
 
 interface AppContextType {
@@ -11,7 +11,6 @@ interface AppContextType {
   addExam: (exam: Omit<Exam, 'id' | 'userId'>) => Promise<void>;
   loading: boolean;
   login: () => Promise<void>;
-  loginAnonymously: () => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -22,7 +21,6 @@ export const AppContext = createContext<AppContextType>({
   addExam: async () => {},
   loading: true,
   login: async () => {},
-  loginAnonymously: async () => {},
   logout: async () => {},
 });
 
@@ -34,6 +32,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   useEffect(() => {
     let unsubscribeUser: (() => void) | undefined;
     let unsubscribeExams: (() => void) | undefined;
+
+    // Check for redirect errors
+    getRedirectResult(auth).catch((error) => {
+      console.error("Redirect login error:", error);
+      if (error.code === 'auth/unauthorized-domain') {
+        alert("Authentication failed: Your domain is not authorized. Please add it to your Firebase Console under Authentication > Settings > Authorized domains.");
+      } else {
+        alert("Authentication error: " + error.message);
+      }
+    });
 
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (unsubscribeUser) unsubscribeUser();
@@ -102,16 +110,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       await signInWithRedirect(auth, provider);
     } catch (error: any) {
       console.error("Login failed", error);
-      // Fallback to anonymous if Google auth fails
-      await signInAnonymously(auth);
-    }
-  };
-
-  const loginAnonymously = async () => {
-    try {
-      await signInAnonymously(auth);
-    } catch (error) {
-      console.error("Anonymous login failed", error);
+      alert("Login failed: " + error.message);
     }
   };
 
@@ -143,7 +142,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   return (
-    <AppContext.Provider value={{ user, updateUser, exams, addExam, loading, login, loginAnonymously, logout }}>
+    <AppContext.Provider value={{ user, updateUser, exams, addExam, loading, login, logout }}>
       {children}
     </AppContext.Provider>
   );
