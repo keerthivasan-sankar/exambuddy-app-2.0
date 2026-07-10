@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { useTheme } from './hooks/useTheme';
 import { AppContext } from './AppContext';
 import { db } from './lib/firebase';
+import { initializeApp, vibrate } from './lib/capacitor';
 import { query, collection, where, onSnapshot, getDoc, doc, deleteDoc, updateDoc, getDocs } from 'firebase/firestore';
 import { Chat, User } from './types';
 
@@ -351,12 +352,20 @@ export const ThemeContext = createContext({
 export default function App() {
   const [activeTab, setActiveTab] = useState('home');
   const [isChatActive, setIsChatActive] = useState(false);
-  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(() => {
+    return localStorage.getItem('termsAccepted') === 'true';
+  });
+
+  const handleTermsChange = (checked: boolean) => {
+    setTermsAccepted(checked);
+    localStorage.setItem('termsAccepted', checked.toString());
+  };
   const { theme, toggleTheme } = useTheme();
   const { user, loading, login } = useContext(AppContext);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   
   useEffect(() => {
+    initializeApp();
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
     
@@ -373,6 +382,11 @@ export default function App() {
     return localStorage.getItem('hasSeenSafetyGuide') === 'true';
   });
 
+  const handleTabChange = (tabId: string) => {
+    vibrate();
+    setActiveTab(tabId);
+  };
+
   const handleAcknowledgeSafety = () => {
     setHasSeenSafetyGuide(true);
     localStorage.setItem('hasSeenSafetyGuide', 'true');
@@ -387,11 +401,11 @@ export default function App() {
 
   const renderContent = () => {
     switch (activeTab) {
-      case 'home': return <Dashboard setActiveTab={setActiveTab} />;
-      case 'matches': return <MatchList setActiveTab={setActiveTab} />;
+      case 'home': return <Dashboard setActiveTab={handleTabChange} />;
+      case 'matches': return <MatchList setActiveTab={handleTabChange} />;
       case 'chat': return <ChatList onChatActive={setIsChatActive} />;
       case 'profile': return <Profile />;
-      default: return <Dashboard setActiveTab={setActiveTab} />;
+      default: return <Dashboard setActiveTab={handleTabChange} />;
     }
   };
 
@@ -419,7 +433,7 @@ export default function App() {
                 type="checkbox"
                 id="terms"
                 checked={termsAccepted}
-                onChange={(e) => setTermsAccepted(e.target.checked)}
+                onChange={(e) => handleTermsChange(e.target.checked)}
                 className="mt-1 w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
               />
               <label htmlFor="terms" className="ml-2 text-xs text-gray-500 dark:text-gray-400">
@@ -469,7 +483,7 @@ export default function App() {
               return (
                 <button
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
+                  onClick={() => handleTabChange(tab.id)}
                   className={`w-full flex items-center p-3 rounded-xl transition-colors ${
                     isActive ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-semibold' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 font-medium'
                   }`}
@@ -517,7 +531,7 @@ export default function App() {
                   return (
                     <button
                       key={tab.id}
-                      onClick={() => setActiveTab(tab.id)}
+                      onClick={() => handleTabChange(tab.id)}
                       className={`flex flex-col items-center justify-center p-2 gap-1 w-16 transition-colors ${
                         isActive ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'
                       }`}

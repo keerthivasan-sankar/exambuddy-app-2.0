@@ -1,7 +1,7 @@
 import React, { createContext, useState, useEffect } from 'react';
 import { User, Exam } from './types';
 import { db, auth } from './lib/firebase';
-import { onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut, getRedirectResult } from 'firebase/auth';
+import { onAuthStateChanged, signInWithPopup, getRedirectResult, GoogleAuthProvider, signOut } from 'firebase/auth';
 import { doc, getDoc, setDoc, onSnapshot, collection, query, where, addDoc, updateDoc } from 'firebase/firestore';
 
 interface AppContextType {
@@ -32,14 +32,35 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   useEffect(() => {
     let unsubscribeUser: (() => void) | undefined;
     let unsubscribeExams: (() => void) | undefined;
+    let isRedirecting = true;
+    let authChecked = false;
+
+    // Check for redirect errors
+    getRedirectResult(auth).then((result) => {
+      isRedirecting = false;
+      if (authChecked && !user) {
+        setLoading(false);
+      }
+    }).catch((error) => {
+      isRedirecting = false;
+      console.error("Redirect login error:", error);
+      if (error.code === 'auth/unauthorized-domain') {
+        alert("Authentication failed: Your domain is not authorized. Please add it to your Firebase Console under Authentication > Settings > Authorized domains.");
+      } else {
+        alert("Authentication error: " + error.message);
+      }
+      if (authChecked) setLoading(false);
+    });
 
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      authChecked = true;
       if (unsubscribeUser) unsubscribeUser();
       if (unsubscribeExams) unsubscribeExams();
 
       if (firebaseUser) {
         // Fetch or create user document
         const userRef = doc(db, 'users', firebaseUser.uid);
+        
         unsubscribeUser = onSnapshot(userRef, (docSnap) => {
           if (docSnap.exists()) {
             setUser({ id: docSnap.id, ...docSnap.data() } as User);
@@ -63,7 +84,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
         // Set online status
         updateDoc(userRef, { isOnline: true, lastActive: Date.now() }).catch(() => {});
-
+        
         const handleUnload = () => {
           updateDoc(userRef, { isOnline: false, lastActive: Date.now() }).catch(() => {});
         };
@@ -78,12 +99,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           });
           setExams(loadedExams);
         });
-
+        
         setLoading(false);
       } else {
         setUser(null);
         setExams([]);
-        setLoading(false);
+        if (!isRedirecting) {
+          setLoading(false);
+        } else {
+          // Fallback just in case getRedirectResult hangs
+          setTimeout(() => setLoading(false), 3000);
+        }
       }
     });
 
@@ -96,9 +122,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const login = async () => {
     try {
+      setLoading(true);
       const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
     } catch (error: any) {
+      setLoading(false);
       console.error("Login failed", error);
       if (error.code === 'auth/unauthorized-domain') {
         alert("Authentication failed: Your domain is not authorized. Please add it to your Firebase Console under Authentication > Settings > Authorized domains.");

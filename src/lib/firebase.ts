@@ -1,6 +1,6 @@
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
-import { getAuth } from 'firebase/auth';
+import { getAuth, setPersistence, browserLocalPersistence } from 'firebase/auth';
 import firebaseConfigJson from '../../firebase-applet-config.json';
 
 const isCustomFirebase = !!import.meta.env.VITE_FIREBASE_API_KEY;
@@ -25,4 +25,8 @@ const databaseId = isCustomFirebase
 
 export const db = getFirestore(app, databaseId);
 export const auth = getAuth(app);
+
+// Ensure local persistence for sessions
+setPersistence(auth, browserLocalPersistence)
+  .catch((err) => console.error("Firebase persistence error:", err));
 

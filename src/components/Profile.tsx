@@ -5,9 +5,12 @@ import { motion } from 'motion/react';
 import { ThemeContext } from '../App';
 import EditProfileModal from './EditProfileModal';
 
+import { takePicture } from '../lib/capacitor';
+import { Camera as CameraIcon } from 'lucide-react';
+
 export default function Profile() {
   const { theme, toggleTheme } = useContext(ThemeContext);
-  const { user, logout } = useContext(AppContext);
+  const { user, logout, updateUser } = useContext(AppContext);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
 
@@ -16,6 +19,13 @@ export default function Profile() {
       setNotificationsEnabled(Notification.permission === 'granted');
     }
   }, []);
+
+  const handleUpdateAvatar = async () => {
+    const photoUrl = await takePicture();
+    if (photoUrl) {
+      await updateUser({ avatar: photoUrl });
+    }
+  };
 
   if (!user) return null;
 
@@ -33,10 +43,13 @@ export default function Profile() {
           animate={{ opacity: 1, scale: 1 }}
           className="bg-white dark:bg-gray-800 rounded-3xl p-6 md:p-8 shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col items-center mb-6 text-center hover:shadow-md transition-shadow"
         >
-          <div className="relative mb-5">
-            <img src={user.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.id}`} alt={user.name} className="w-28 h-28 rounded-full bg-gray-100 dark:bg-gray-700 border-4 border-white dark:border-gray-800 shadow-md" />
+          <div className="relative mb-5 group cursor-pointer" onClick={handleUpdateAvatar}>
+            <img src={user.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.id}`} alt={user.name} className="w-28 h-28 rounded-full bg-gray-100 dark:bg-gray-700 border-4 border-white dark:border-gray-800 shadow-md object-cover" />
+            <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+              <CameraIcon className="text-white w-8 h-8" />
+            </div>
             {user.verified && (
-              <div className="absolute bottom-1 right-1 bg-white dark:bg-gray-800 rounded-full p-1.5 shadow-sm">
+              <div className="absolute bottom-1 right-1 bg-white dark:bg-gray-800 rounded-full p-1.5 shadow-sm z-10">
                 <Shield size={22} className="text-green-500 fill-green-100 dark:fill-green-900/30" />
               </div>
             )}

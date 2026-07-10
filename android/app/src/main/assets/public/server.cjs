@@ -811,6 +811,18 @@ async function startServer() {
   } else {
     console.log("No MONGODB_URI provided. Database will not be connected.");
   }
+  app.use((req, res, next) => {
+    res.setHeader("X-Content-Type-Options", "nosniff");
+    res.setHeader("X-XSS-Protection", "1; mode=block");
+    res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
+    res.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload");
+    if (req.path === "/" || req.path.endsWith(".html") || req.path.startsWith("/auth")) {
+      res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+      res.setHeader("Pragma", "no-cache");
+      res.setHeader("Expires", "0");
+    }
+    next();
+  });
   app.use("/api", api_default);
   if (process.env.NODE_ENV !== "production") {
     const vite = await (0, import_vite.createServer)({
