@@ -12,9 +12,20 @@
     <link rel="apple-touch-icon" href="/icon-192.png" />
     <link rel="manifest" href="/manifest.json" />
     <title>ExamBuddy</title>
-    <script type="module" crossorigin src="/assets/index-Ba8ukpR_.js"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+          navigator.serviceWorker.register('/sw.js').then(function(registration) {
+            console.log('SW registered: ', registration);
+          }).catch(function(registrationError) {
+            console.log('SW registration failed: ', registrationError);
+          });
+        });
+      }
+    </script>
+    <script type="module" crossorigin src="/assets/index-sVH4BOdH.js"></script>
     <link rel="stylesheet" crossorigin href="/assets/index-DmtCLW0b.css">
-  <link rel="manifest" href="/manifest.webmanifest"><script id="vite-plugin-pwa:register-sw" src="/registerSW.js"></script></head>
+  </head>
   <body>
     <div id="root"></div>
   </body>
