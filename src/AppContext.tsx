@@ -1,7 +1,7 @@
 import React, { createContext, useState, useEffect } from 'react';
 import { User, Exam } from './types';
 import { db, auth } from './lib/firebase';
-import { onAuthStateChanged, signInWithPopup, getRedirectResult, GoogleAuthProvider, signOut } from 'firebase/auth';
+import { onAuthStateChanged, signInWithPopup, getRedirectResult, GoogleAuthProvider, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 import { doc, getDoc, setDoc, onSnapshot, collection, query, where, addDoc, updateDoc } from 'firebase/firestore';
 
 interface AppContextType {
@@ -11,6 +11,8 @@ interface AppContextType {
   addExam: (exam: Omit<Exam, 'id' | 'userId'>) => Promise<void>;
   loading: boolean;
   login: () => Promise<void>;
+  loginWithEmail: (email: string, pass: string) => Promise<void>;
+  signupWithEmail: (email: string, pass: string) => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -21,6 +23,8 @@ export const AppContext = createContext<AppContextType>({
   addExam: async () => {},
   loading: true,
   login: async () => {},
+  loginWithEmail: async () => {},
+  signupWithEmail: async () => {},
   logout: async () => {},
 });
 
@@ -136,6 +140,30 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   };
 
+  const loginWithEmail = async (email: string, pass: string) => {
+    try {
+      setLoading(true);
+      await signInWithEmailAndPassword(auth, email, pass);
+    } catch (error: any) {
+      setLoading(false);
+      console.error("Login failed", error);
+      alert("Login failed: " + error.message);
+      throw error;
+    }
+  };
+
+  const signupWithEmail = async (email: string, pass: string) => {
+    try {
+      setLoading(true);
+      await createUserWithEmailAndPassword(auth, email, pass);
+    } catch (error: any) {
+      setLoading(false);
+      console.error("Signup failed", error);
+      alert("Signup failed: " + error.message);
+      throw error;
+    }
+  };
+
   const logout = async () => {
     if (user) {
       try {
@@ -164,7 +192,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   return (
-    <AppContext.Provider value={{ user, updateUser, exams, addExam, loading, login, logout }}>
+    <AppContext.Provider value={{ user, updateUser, exams, addExam, loading, login, loginWithEmail, signupWithEmail, logout }}>
       {children}
     </AppContext.Provider>
   );
