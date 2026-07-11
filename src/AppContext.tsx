@@ -3,6 +3,7 @@ import { User, Exam } from './types';
 import { db, auth } from './lib/firebase';
 import { onAuthStateChanged, signInWithPopup, getRedirectResult, GoogleAuthProvider, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendSignInLinkToEmail, isSignInWithEmailLink, signInWithEmailLink } from 'firebase/auth';
 import { doc, getDoc, setDoc, onSnapshot, collection, query, where, addDoc, updateDoc } from 'firebase/firestore';
+import { App as CapacitorApp } from '@capacitor/app';
 
 interface AppContextType {
   user: User | null;
@@ -41,7 +42,28 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     let isRedirecting = true;
     let authChecked = false;
 
-    // Check for email link sign-in
+    // Handle deep links in Capacitor App
+    CapacitorApp.addListener('appUrlOpen', data => {
+      const url = data.url;
+      if (isSignInWithEmailLink(auth, url)) {
+        let email = window.localStorage.getItem('emailForSignIn');
+        if (!email) {
+          email = window.prompt('Please provide your email for confirmation');
+        }
+        if (email) {
+          signInWithEmailLink(auth, email, url)
+            .then(() => {
+              window.localStorage.removeItem('emailForSignIn');
+            })
+            .catch((error) => {
+              console.error("Error signing in with email link", error);
+              alert("Error signing in with email link: " + error.message);
+            });
+        }
+      }
+    });
+
+    // Check for email link sign-in (Web)
     if (isSignInWithEmailLink(auth, window.location.href)) {
       let email = window.localStorage.getItem('emailForSignIn');
       if (!email) {
