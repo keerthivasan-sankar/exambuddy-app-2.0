@@ -1,7 +1,7 @@
 import React, { createContext, useState, useEffect } from 'react';
 import { User, Exam } from './types';
 import { db, auth } from './lib/firebase';
-import { onAuthStateChanged, signInWithPopup, getRedirectResult, GoogleAuthProvider, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
+import { onAuthStateChanged, signInWithPopup, getRedirectResult, GoogleAuthProvider, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendSignInLinkToEmail, isSignInWithEmailLink, signInWithEmailLink } from 'firebase/auth';
 import { doc, getDoc, setDoc, onSnapshot, collection, query, where, addDoc, updateDoc } from 'firebase/firestore';
 
 interface AppContextType {
@@ -13,6 +13,7 @@ interface AppContextType {
   login: () => Promise<void>;
   loginWithEmail: (email: string, pass: string) => Promise<void>;
   signupWithEmail: (email: string, pass: string) => Promise<void>;
+  sendLoginLink: (email: string) => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -25,6 +26,7 @@ export const AppContext = createContext<AppContextType>({
   login: async () => {},
   loginWithEmail: async () => {},
   signupWithEmail: async () => {},
+  sendLoginLink: async () => {},
   logout: async () => {},
 });
 
@@ -38,6 +40,24 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     let unsubscribeExams: (() => void) | undefined;
     let isRedirecting = true;
     let authChecked = false;
+
+    // Check for email link sign-in
+    if (isSignInWithEmailLink(auth, window.location.href)) {
+      let email = window.localStorage.getItem('emailForSignIn');
+      if (!email) {
+        email = window.prompt('Please provide your email for confirmation');
+      }
+      if (email) {
+        signInWithEmailLink(auth, email, window.location.href)
+          .then(() => {
+            window.localStorage.removeItem('emailForSignIn');
+          })
+          .catch((error) => {
+            console.error("Error signing in with email link", error);
+            alert("Error signing in with email link: " + error.message);
+          });
+      }
+    }
 
     // Check for redirect errors
     getRedirectResult(auth).then((result) => {
@@ -147,8 +167,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     } catch (error: any) {
       setLoading(false);
       console.error("Login failed", error);
-      alert("Login failed: " + error.message);
-      throw error;
+      if (error.code === 'auth/operation-not-allowed') {
+        throw new Error("Email/Password login is disabled. Please enable it in Firebase Console > Authentication > Sign-in method.");
+      }
+      throw new Error(error.message.replace('Firebase: ', ''));
     }
   };
 
@@ -159,8 +181,30 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     } catch (error: any) {
       setLoading(false);
       console.error("Signup failed", error);
-      alert("Signup failed: " + error.message);
-      throw error;
+      if (error.code === 'auth/operation-not-allowed') {
+        throw new Error("Email/Password signup is disabled. Please enable it in Firebase Console > Authentication > Sign-in method.");
+      }
+      throw new Error(error.message.replace('Firebase: ', ''));
+    }
+  };
+
+  const sendLoginLink = async (email: string) => {
+    const actionCodeSettings = {
+      url: window.location.origin,
+      handleCodeInApp: true,
+    };
+    try {
+      setLoading(true);
+      await sendSignInLinkToEmail(auth, email, actionCodeSettings);
+      window.localStorage.setItem('emailForSignIn', email);
+      setLoading(false);
+    } catch (error: any) {
+      setLoading(false);
+      console.error("Send login link failed", error);
+      if (error.code === 'auth/operation-not-allowed') {
+        throw new Error("Email link sign-in is disabled. Please enable it in Firebase Console > Authentication > Sign-in method.");
+      }
+      throw new Error(error.message.replace('Firebase: ', ''));
     }
   };
 
@@ -192,7 +236,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   return (
-    <AppContext.Provider value={{ user, updateUser, exams, addExam, loading, login, loginWithEmail, signupWithEmail, logout }}>
+    <AppContext.Provider value={{ user, updateUser, exams, addExam, loading, login, loginWithEmail, signupWithEmail, sendLoginLink, logout }}>
       {children}
     </AppContext.Provider>
   );

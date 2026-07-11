@@ -353,8 +353,6 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('home');
   const [isChatActive, setIsChatActive] = useState(false);
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [isLoginMode, setIsLoginMode] = useState(true);
   const [authError, setAuthError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(() => {
@@ -366,13 +364,14 @@ export default function App() {
     localStorage.setItem('termsAccepted', checked.toString());
   };
   const { theme, toggleTheme } = useTheme();
-  const { user, loading, login, loginWithEmail, signupWithEmail } = useContext(AppContext);
+  const { user, loading, login, sendLoginLink } = useContext(AppContext);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [emailSent, setEmailSent] = useState(false);
 
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !password) {
-      setAuthError('Please enter email and password');
+    if (!email) {
+      setAuthError('Please enter email');
       return;
     }
     if (!termsAccepted) {
@@ -382,11 +381,8 @@ export default function App() {
     setAuthError('');
     setIsSubmitting(true);
     try {
-      if (isLoginMode) {
-        if (loginWithEmail) await loginWithEmail(email, password);
-      } else {
-        if (signupWithEmail) await signupWithEmail(email, password);
-      }
+      if (sendLoginLink) await sendLoginLink(email);
+      setEmailSent(true);
     } catch (err: any) {
       setAuthError(err.message || 'Authentication failed');
     } finally {
@@ -463,52 +459,52 @@ export default function App() {
                 {authError}
               </div>
             )}
-            <input
-              type="email"
-              placeholder="Email address"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-              required
-            />
-            <input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-              required
-            />
-            
-            <div className="flex items-start text-left mb-2 px-1">
-              <input
-                type="checkbox"
-                id="terms"
-                checked={termsAccepted}
-                onChange={(e) => handleTermsChange(e.target.checked)}
-                className="mt-1 w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-              />
-              <label htmlFor="terms" className="ml-2 text-xs text-gray-500 dark:text-gray-400">
-                I agree to the <a href="/terms-and-conditions.html" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline dark:text-blue-400">Terms and Conditions</a> and <a href="/privacy-policy.html" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline dark:text-blue-400">Privacy Policy</a>
-              </label>
-            </div>
+            {emailSent ? (
+              <div className="bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-sm p-4 rounded-xl text-center mb-4">
+                <p className="font-semibold mb-1">Check your email</p>
+                <p>We've sent a magic link to {email}. Click the link to sign in instantly.</p>
+                <button
+                  type="button"
+                  onClick={() => setEmailSent(false)}
+                  className="mt-3 text-xs text-blue-600 dark:text-blue-400 font-medium hover:underline"
+                >
+                  Use a different email
+                </button>
+              </div>
+            ) : (
+              <>
+                <input
+                  type="email"
+                  placeholder="Email address"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                  required
+                />
+                
+                <div className="flex items-start text-left mb-2 px-1">
+                  <input
+                    type="checkbox"
+                    id="terms"
+                    checked={termsAccepted}
+                    onChange={(e) => handleTermsChange(e.target.checked)}
+                    className="mt-1 w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                  />
+                  <label htmlFor="terms" className="ml-2 text-xs text-gray-500 dark:text-gray-400">
+                    I agree to the <a href="/terms-and-conditions.html" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline dark:text-blue-400">Terms and Conditions</a> and <a href="/privacy-policy.html" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline dark:text-blue-400">Privacy Policy</a>
+                  </label>
+                </div>
 
-            <button 
-              type="submit"
-              disabled={!termsAccepted || isSubmitting}
-              className={`w-full text-white font-bold py-3.5 px-4 rounded-xl transition-all shadow-md flex items-center justify-center gap-2 ${termsAccepted && !isSubmitting ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-400 dark:bg-gray-600 cursor-not-allowed opacity-70'}`}
-            >
-              <LogIn size={20} />
-              {isSubmitting ? 'Processing...' : (isLoginMode ? 'Log In' : 'Sign Up')}
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setIsLoginMode(!isLoginMode)}
-              className="text-sm text-blue-600 dark:text-blue-400 font-medium hover:underline mt-1"
-            >
-              {isLoginMode ? 'Need an account? Sign up' : 'Already have an account? Log in'}
-            </button>
+                <button 
+                  type="submit"
+                  disabled={!termsAccepted || isSubmitting}
+                  className={`w-full text-white font-bold py-3.5 px-4 rounded-xl transition-all shadow-md flex items-center justify-center gap-2 ${termsAccepted && !isSubmitting ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-400 dark:bg-gray-600 cursor-not-allowed opacity-70'}`}
+                >
+                  <LogIn size={20} />
+                  {isSubmitting ? 'Sending Link...' : 'Continue with Email'}
+                </button>
+              </>
+            )}
 
             <div className="relative flex items-center py-2">
               <div className="flex-grow border-t border-gray-200 dark:border-gray-700"></div>
