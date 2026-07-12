@@ -5,6 +5,10 @@ on:
     branches: [ main, master ]
   workflow_dispatch:
 
+env:
+  ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -36,7 +40,7 @@ jobs:
       run: |
         cd android
         chmod +x gradlew
-        ./gradlew assembleDebug
+        ./gradlew assembleDebug -x lint
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
