@@ -74,7 +74,7 @@ function Dashboard({ setActiveTab }: { setActiveTab: (tab: string) => void }) {
   return (
     <div className="flex flex-col h-full bg-gray-50 dark:bg-gray-900 pb-24 md:pb-0">
       <div className="bg-white dark:bg-gray-800 px-5 pt-6 pb-4 shadow-sm sticky top-0 z-10 md:hidden flex flex-col justify-center">
-        <h1 className="text-xl font-bold text-gray-900 dark:text-white tracking-tight">ExamBuddy</h1>
+        <h1 className="text-xl font-bold text-gray-900 dark:text-white tracking-tight">Exam Buddy</h1>
         <p className="text-gray-500 dark:text-gray-400 text-xs mt-0.5">Connect, Travel, Succeed.</p>
       </div>
       <div className="hidden md:block bg-white dark:bg-gray-800 px-8 pt-8 pb-6 shadow-sm sticky top-0 z-10">
@@ -450,7 +450,7 @@ export default function App() {
           <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-blue-500/30">
             <span className="text-white font-black text-2xl">EB</span>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Welcome to ExamBuddy</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Welcome to Exam Buddy</h1>
           <p className="text-gray-500 dark:text-gray-400 mb-8 text-sm">Connect, Travel, Succeed.</p>
           
           <form onSubmit={handleEmailAuth} className="flex flex-col gap-3">
@@ -550,7 +550,7 @@ export default function App() {
           <div className="p-6">
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight flex items-center">
               <span className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center mr-2 text-white font-black text-sm">EB</span>
-              ExamBuddy
+              Exam Buddy
             </h1>
             <p className="text-gray-500 dark:text-gray-400 text-xs mt-2 font-medium uppercase tracking-wider">Connect, Travel, Succeed</p>
           </div>

@@ -117,3 +117,31 @@ export const getLocalPreference = async (key: string) => {
   const { value } = await Preferences.get({ key });
   return value;
 };
+
+import { LocalNotifications } from '@capacitor/local-notifications';
+
+export const scheduleLocalNotification = async (title: string, body: string, id: number = 1, extraDelaySecs: number = 5) => {
+  if (Capacitor.isNativePlatform()) {
+    try {
+      const permission = await LocalNotifications.requestPermissions();
+      if (permission.display === 'granted') {
+        await LocalNotifications.schedule({
+          notifications: [
+            {
+              title,
+              body,
+              id,
+              schedule: { at: new Date(Date.now() + 1000 * extraDelaySecs) },
+              sound: undefined,
+              attachments: undefined,
+              actionTypeId: "",
+              extra: null
+            }
+          ]
+        });
+      }
+    } catch (e) {
+      console.error('Error scheduling notification', e);
+    }
+  }
+};

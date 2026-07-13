@@ -25,7 +25,7 @@ export default function SafetyModal({ isOpen, onClose }: SafetyModalProps) {
             </div>
             
             <h2 className="text-2xl font-bold text-center text-gray-900 dark:text-white mb-2">
-              Welcome to ExamBuddy
+              Welcome to Exam Buddy
             </h2>
             <p className="text-center text-gray-500 dark:text-gray-400 mb-8">
               Your safety and privacy are our top priorities. Please review our community guidelines before proceeding.

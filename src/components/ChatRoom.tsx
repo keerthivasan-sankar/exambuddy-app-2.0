@@ -128,7 +128,7 @@ export default function ChatRoom({ chat, onBack }: ChatRoomProps) {
         <button 
           onClick={() => {
             if (window.confirm("Are you sure you want to report this chat for inappropriate behavior? Our moderation team will review this.")) {
-              alert("Report submitted successfully. Thank you for keeping ExamBuddy safe.");
+              alert("Report submitted successfully. Thank you for keeping Exam Buddy safe.");
             }
           }}
           className="p-2 text-gray-400 hover:text-red-500 rounded-full hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"

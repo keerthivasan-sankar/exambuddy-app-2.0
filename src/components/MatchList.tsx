@@ -292,7 +292,7 @@ export default function MatchList({ setActiveTab }: { setActiveTab?: (tab: strin
                   <button 
                     onClick={() => {
                       if (window.confirm(`Are you sure you want to report ${match.buddy.name} for inappropriate behavior?`)) {
-                        alert("Report submitted successfully. Thank you for keeping ExamBuddy safe.");
+                        alert("Report submitted successfully. Thank you for keeping Exam Buddy safe.");
                       }
                     }}
                     className="flex-1 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 py-2.5 rounded-xl text-sm font-bold hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors flex items-center justify-center shadow-sm"

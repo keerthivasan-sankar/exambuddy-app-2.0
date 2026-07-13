@@ -1,7 +1,7 @@
 {
   "id": "/?source=pwa",
-  "name": "ExamBuddy",
-  "short_name": "ExamBuddy",
+  "name": "Exam Buddy",
+  "short_name": "Exam Buddy",
   "description": "Student travel coordination platform for exam centers.",
   "start_url": "/?source=pwa",
   "display": "standalone",

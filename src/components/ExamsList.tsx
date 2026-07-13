@@ -158,7 +158,7 @@ END:VCALENDAR`;
                     Apple/Outlook
                   </button>
                   <button 
-                    onClick={() => shareAppContent(`Join me for ${exam.examName}`, `I am taking ${exam.examName} in ${exam.examCity} on ${new Date(exam.examDate).toLocaleDateString()}. Find me on ExamBuddy!`, window.location.href)}
+                    onClick={() => shareAppContent(`Join me for ${exam.examName}`, `I am taking ${exam.examName} in ${exam.examCity} on ${new Date(exam.examDate).toLocaleDateString()}. Find me on Exam Buddy!`, window.location.href)}
                     className="flex-1 bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs font-bold py-2 rounded-lg transition-colors border border-gray-100 dark:border-gray-600 flex justify-center items-center"
                   >
                     Share

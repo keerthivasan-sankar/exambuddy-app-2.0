@@ -51,9 +51,9 @@ export default function InstallPrompt() {
               <Download size={24} />
             </div>
             <div className="flex-1">
-              <h3 className="font-semibold text-gray-900 dark:text-white mb-1">Install ExamBuddy</h3>
+              <h3 className="font-semibold text-gray-900 dark:text-white mb-1">Install Exam Buddy</h3>
               <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
-                Add ExamBuddy to your home screen for quick access and offline support.
+                Add Exam Buddy to your home screen for quick access and offline support.
               </p>
               <div className="flex gap-2">
                 <button
