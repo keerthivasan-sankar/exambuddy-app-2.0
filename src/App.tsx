@@ -14,6 +14,7 @@ import { Chat, User } from './types';
 
 import AddExamModal from './components/AddExamModal';
 import InstallPrompt from './components/InstallPrompt';
+import PushNotificationPrompt from "./components/PushNotificationPrompt";
 import SafetyModal from './components/SafetyModal';
 
 function Dashboard({ setActiveTab }: { setActiveTab: (tab: string) => void }) {
@@ -529,6 +530,7 @@ export default function App() {
           </form>
         </div>
         <InstallPrompt />
+        <PushNotificationPrompt />
       </div>
     );
   }
@@ -633,6 +635,7 @@ export default function App() {
         </div>
         <Toaster position="top-center" />
         <InstallPrompt />
+        <PushNotificationPrompt />
         <SafetyModal 
           isOpen={!!user && !hasSeenSafetyGuide} 
           onClose={handleAcknowledgeSafety} 

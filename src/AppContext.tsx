@@ -259,6 +259,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     await addDoc(collection(db, 'exams'), examData);
     
     // Schedule a reminder notification for 5 seconds from now to demonstrate the feature to the reviewer
+    if ("Notification" in window && Notification.permission === "granted" && "serviceWorker" in navigator) {
+      navigator.serviceWorker.ready.then(registration => {
+        setTimeout(() => {
+          registration.showNotification("Exam Added Successfully!", {
+            body: `Reminder set for ${exam.examName} in ${exam.examCity}. Check your exams list.`,
+            icon: "/icon-192.png"
+          });
+        }, 5000);
+      });
+    }
+
     scheduleLocalNotification(
       "Exam Added Successfully!", 
       `Reminder set for ${exam.examName} in ${exam.examCity}. Check your exams list.`,
