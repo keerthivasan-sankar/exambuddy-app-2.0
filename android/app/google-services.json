@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "207158616311",
+    "project_id": "exam-buddy-app-e5876",
+    "storage_bucket": "exam-buddy-app-e5876.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:207158616311:android:38c2301a635d30358873f2",
+        "android_client_info": {
+          "package_name": "com.exambuddy"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "207158616311-fihi52ijpc2nnkuhbg4s2u0288sm54bv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCuv_97PCbVPFxpbZy7n0iDpyLkHQgwBxE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "207158616311-05of7e2t13deb0i8h1cjgnipbntnkqob.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
